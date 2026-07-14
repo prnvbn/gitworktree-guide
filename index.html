@@ -1,0 +1,334 @@
+<!doctype html>
+<html lang="en" class="scroll-smooth">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="A short, practical guide to adding, listing, and removing Git worktrees."
+    />
+    <meta name="theme-color" content="#f8f5ef" />
+    <title>git worktree — the simple guide</title>
+    <link rel="icon" href="./favicon.svg" type="image/svg+xml" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Chelsea+Market&family=DM+Mono:wght@400;500&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+
+  <body class="overflow-x-hidden bg-paper font-serif text-ink antialiased selection:bg-sun selection:text-ink">
+    <a
+      href="#main"
+      class="fixed left-4 top-4 z-50 -translate-y-24 rounded-full bg-ink px-5 py-3 font-mono text-sm text-white transition-transform focus:translate-y-0"
+    >
+      Skip to the guide
+    </a>
+
+    <header class="absolute inset-x-0 top-0 z-40">
+      <nav class="mx-auto flex max-w-7xl items-center justify-between px-5 py-5 sm:px-8 lg:px-12" aria-label="Guide chapters">
+        <a href="#top" class="group flex items-center gap-3" aria-label="Back to the start">
+          <span class="grid h-10 w-10 rotate-3 place-items-center rounded-lg border-2 border-ink bg-sun font-display text-sm shadow-block-small transition-transform group-hover:-rotate-3">gw</span>
+          <span class="hidden font-mono text-xs font-medium uppercase tracking-[0.18em] sm:inline">worktree guide</span>
+        </a>
+
+        <div class="flex items-center gap-1 rounded-full border-2 border-ink bg-white/90 p-1 font-mono text-[11px] font-medium shadow-block-small backdrop-blur sm:gap-2 sm:text-xs">
+          <a class="rounded-full px-3 py-2 transition-colors hover:bg-sun focus:bg-sun focus:outline-none sm:px-4" href="#add">add</a>
+          <a class="rounded-full px-3 py-2 transition-colors hover:bg-coral-pale focus:bg-coral-pale focus:outline-none sm:px-4" href="#remember">list + remove</a>
+        </div>
+      </nav>
+    </header>
+
+    <main id="main">
+      <section id="top" class="paper-grid relative isolate flex min-h-[100svh] scroll-mt-8 items-center overflow-hidden border-b-2 border-ink px-5 pb-20 pt-32 sm:px-8 sm:pt-36">
+        <div class="pointer-events-none absolute right-4 top-20 -z-10 font-display text-[11rem] leading-none text-ink/10 sm:right-12 sm:text-[16rem]" aria-hidden="true">01</div>
+        <div class="pointer-events-none absolute -left-20 top-1/4 -z-10 h-56 w-56 rounded-full border-[36px] border-blue-pale opacity-60"></div>
+        <div class="pointer-events-none absolute -right-16 bottom-16 -z-10 h-48 w-48 rotate-12 bg-coral-pale opacity-70"></div>
+
+        <div class="mx-auto grid w-full max-w-7xl grid-cols-[minmax(0,1fr)] items-center gap-12 lg:grid-cols-[minmax(0,1.02fr)_minmax(0,0.98fr)] lg:gap-10">
+          <div class="min-w-0 text-center lg:text-left">
+            <h1 class="font-display text-[clamp(3.4rem,8vw,7.6rem)] font-normal leading-[0.94] tracking-[-0.055em]">
+              git worktree
+              <span class="mt-2 block text-coral">the simple guide</span>
+            </h1>
+            <p class="mx-auto mt-8 max-w-xl text-base leading-relaxed text-ink/65 sm:text-lg lg:mx-0">
+              This guide assumes branches, commits, and checkouts already feel familiar. If they don’t,
+              <a
+                class="font-semibold text-ink underline decoration-coral decoration-2 underline-offset-4 hover:bg-coral-pale focus:outline-none focus:ring-2 focus:ring-ink"
+                href="https://rogerdudler.github.io/git-guide/"
+                target="_blank"
+                rel="noreferrer"
+              >start with git — the simple guide<span class="sr-only"> (opens in a new tab)</span></a>.
+            </p>
+          </div>
+
+          <div class="relative mx-auto min-w-0 w-full max-w-2xl" aria-hidden="true">
+            <svg class="h-auto w-full overflow-visible" viewBox="0 0 720 540" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path class="branch-path" d="M357 412V309C357 282 336 260 309 260H190C160 260 136 236 136 206V174" stroke="#171717" stroke-width="5" stroke-linecap="round" />
+              <path class="branch-path" d="M357 412V309C357 282 379 260 406 260H525C555 260 579 236 579 206V174" stroke="#171717" stroke-width="5" stroke-linecap="round" />
+
+              <g transform="translate(52 54)">
+                <rect x="8" y="8" width="176" height="126" rx="18" fill="#171717" />
+                <rect width="176" height="126" rx="18" fill="#459DDB" stroke="#171717" stroke-width="4" />
+                <path d="M0 34h176" stroke="#171717" stroke-width="4" />
+                <circle cx="20" cy="18" r="5" fill="#171717" />
+                <circle cx="38" cy="18" r="5" fill="#171717" />
+                <path d="M33 66h65M33 83h90M33 100h45" stroke="#083E66" stroke-width="7" stroke-linecap="round" />
+                <circle cx="153" cy="100" r="8" fill="#FFB20F" stroke="#171717" stroke-width="3" />
+              </g>
+
+              <g transform="translate(492 54)">
+                <rect x="8" y="8" width="176" height="126" rx="18" fill="#171717" />
+                <rect width="176" height="126" rx="18" fill="#EF665B" stroke="#171717" stroke-width="4" />
+                <path d="M0 34h176" stroke="#171717" stroke-width="4" />
+                <circle cx="20" cy="18" r="5" fill="#171717" />
+                <circle cx="38" cy="18" r="5" fill="#171717" />
+                <path d="M33 66h81M33 83h57M33 100h99" stroke="#641D19" stroke-width="7" stroke-linecap="round" />
+                <circle cx="153" cy="100" r="8" fill="#FFB20F" stroke="#171717" stroke-width="3" />
+              </g>
+
+              <g transform="translate(258 394)">
+                <rect x="8" y="8" width="206" height="92" rx="17" fill="#171717" />
+                <path d="M2 28c0-10 8-18 18-18h58l18 18h98c10 0 18 8 18 18v48H2V28Z" fill="#FFB20F" stroke="#171717" stroke-width="4" stroke-linejoin="round" />
+                <path d="M36 57h136" stroke="#171717" stroke-width="7" stroke-linecap="round" />
+                <path d="M36 75h82" stroke="#171717" stroke-width="7" stroke-linecap="round" />
+              </g>
+
+              <g font-family="DM Mono, monospace" font-size="13" font-weight="500" fill="#171717">
+                <rect x="76" y="202" width="120" height="34" rx="17" fill="#BDE2F7" stroke="#171717" stroke-width="2" />
+                <text x="136" y="224" text-anchor="middle">main</text>
+                <rect x="504" y="202" width="150" height="34" rx="17" fill="#FFC3A4" stroke="#171717" stroke-width="2" />
+                <text x="579" y="224" text-anchor="middle">feature/login</text>
+                <rect x="296" y="502" width="132" height="34" rx="17" fill="white" stroke="#171717" stroke-width="2" />
+                <text x="362" y="524" text-anchor="middle">one repo</text>
+              </g>
+            </svg>
+          </div>
+        </div>
+      </section>
+
+      <section id="add" class="relative scroll-mt-0 overflow-hidden border-b-2 border-ink bg-blue px-5 py-24 sm:px-8 sm:py-32">
+        <div class="absolute right-4 top-0 font-display text-[11rem] leading-none text-blue-dark/10 sm:right-12 sm:text-[16rem]" aria-hidden="true">02</div>
+        <div class="relative mx-auto max-w-6xl">
+          <p class="font-mono text-xs font-medium uppercase tracking-[0.25em] text-blue-dark sm:text-sm">the problem</p>
+          <h2 class="mt-5 max-w-5xl font-display text-[clamp(2.8rem,7vw,6rem)] leading-[0.98] tracking-[-0.045em] text-blue-dark">
+            two branches.<br />one machine.<br /><span class="text-white">both open.</span>
+          </h2>
+
+          <div class="mt-12 grid gap-10 lg:grid-cols-[0.85fr_1.15fr] lg:items-start lg:gap-16">
+            <div class="text-lg leading-relaxed text-blue-dark sm:text-xl">
+              <p>
+                You’re fixing <strong>main</strong>, but your half-finished feature needs to stay exactly where it is. A worktree gives another branch its own folder while sharing the same repository history.
+              </p>
+
+              <ol class="mt-9 space-y-5" aria-label="What the command does">
+                <li class="flex gap-4">
+                  <span class="grid h-8 w-8 shrink-0 place-items-center rounded-full border-2 border-blue-dark bg-sun font-mono text-xs font-medium">1</span>
+                  <span>Start inside your existing repository.</span>
+                </li>
+                <li class="flex gap-4">
+                  <span class="grid h-8 w-8 shrink-0 place-items-center rounded-full border-2 border-blue-dark bg-sun font-mono text-xs font-medium">2</span>
+                  <span>Pick a sibling folder and the existing branch you want.</span>
+                </li>
+                <li class="flex gap-4">
+                  <span class="grid h-8 w-8 shrink-0 place-items-center rounded-full border-2 border-blue-dark bg-sun font-mono text-xs font-medium">3</span>
+                  <span>Open both folders. That’s it.</span>
+                </li>
+              </ol>
+            </div>
+
+            <div>
+              <div class="command-card relative overflow-hidden rounded-2xl border-2 border-ink bg-ink p-5 shadow-block sm:p-7">
+                <div class="mb-7 flex items-center justify-between gap-4 border-b border-white/15 pb-4">
+                  <div class="flex items-center gap-2" aria-hidden="true">
+                    <span class="h-3 w-3 rounded-full bg-coral"></span>
+                    <span class="h-3 w-3 rounded-full bg-sun"></span>
+                    <span class="h-3 w-3 rounded-full bg-blue"></span>
+                  </div>
+                  <span class="font-mono text-[10px] uppercase tracking-[0.2em] text-white/45 sm:text-xs">from my-app/</span>
+                </div>
+                <pre class="overflow-x-auto pb-2 font-mono text-sm leading-8 text-white sm:text-lg"><code id="add-command"><span class="text-white/45">$</span> git worktree add \
+  ../my-app-login \
+  feature/login</code></pre>
+                <button
+                  class="mt-6 inline-flex items-center gap-2 rounded-full border border-white/30 px-4 py-2 font-mono text-xs text-white transition-colors hover:bg-white hover:text-ink focus:outline-none focus:ring-2 focus:ring-sun"
+                  type="button"
+                  data-copy="add-command"
+                >
+                  <svg aria-hidden="true" class="h-4 w-4" viewBox="0 0 20 20" fill="none">
+                    <rect x="7" y="7" width="9" height="9" rx="2" stroke="currentColor" stroke-width="1.7" />
+                    <path d="M13 7V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2" stroke="currentColor" stroke-width="1.7" />
+                  </svg>
+                  copy command
+                </button>
+              </div>
+
+              <p class="mt-7 rounded-xl border-2 border-blue-dark bg-blue-pale p-5 text-base leading-relaxed text-blue-dark shadow-block-small sm:text-lg">
+                <strong>Need a new branch instead?</strong>
+                Add <code class="rounded bg-blue-dark px-2 py-1 font-mono text-sm text-white">-b</code> before the new branch name:
+                <code class="mt-3 block overflow-x-auto whitespace-nowrap font-mono text-sm font-medium">git worktree add ../my-app-login -b feature/login</code>
+              </p>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      <section id="remember" class="relative scroll-mt-0 overflow-hidden border-b-2 border-ink bg-coral-pale px-5 py-24 sm:px-8 sm:py-32">
+        <div class="absolute -left-4 top-0 font-display text-[11rem] leading-none text-coral-dark/10 sm:left-10 sm:text-[16rem]" aria-hidden="true">03</div>
+        <div class="relative mx-auto max-w-6xl">
+          <p class="text-center font-mono text-xs font-medium uppercase tracking-[0.25em] text-coral-dark sm:text-sm">tidying up</p>
+          <h2 class="mx-auto mt-5 max-w-5xl text-center font-display text-[clamp(2.8rem,7vw,6rem)] leading-[0.98] tracking-[-0.045em] text-coral-dark">
+            list what’s there.<br /><span class="text-coral">remove what’s done.</span>
+          </h2>
+          <p class="mx-auto mt-8 max-w-2xl text-center text-lg leading-relaxed text-coral-dark sm:text-xl">
+            Two commands to help you clean up after yourself.
+          </p>
+
+          <div class="mt-14 grid gap-8 lg:grid-cols-2">
+            <article class="rounded-2xl border-2 border-ink bg-paper p-5 shadow-block sm:p-7">
+              <div class="mb-6 flex items-start justify-between gap-4">
+                <div>
+                  <span class="font-mono text-xs font-medium uppercase tracking-[0.2em] text-coral">01 / look</span>
+                  <h3 class="mt-2 font-display text-3xl text-coral-dark sm:text-4xl">what do I have?</h3>
+                </div>
+                <span class="grid h-12 w-12 shrink-0 place-items-center rounded-full border-2 border-ink bg-blue-pale">
+                  <svg aria-hidden="true" class="h-6 w-6" viewBox="0 0 24 24" fill="none">
+                    <path d="M4 6h6l2 2h8v10H4V6Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round" />
+                    <path d="M8 12h8M8 15h5" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+                  </svg>
+                </span>
+              </div>
+
+              <div class="command-card relative overflow-hidden rounded-xl bg-ink p-5">
+                <pre class="overflow-x-auto font-mono text-sm leading-7 text-white sm:text-base"><code id="list-command"><span class="text-white/45">$</span> git worktree list</code></pre>
+                <button class="mt-5 font-mono text-xs text-white/60 underline decoration-white/30 underline-offset-4 transition-colors hover:text-white focus:outline-none focus:text-white" type="button" data-copy="list-command">copy</button>
+              </div>
+
+              <div class="mt-5 overflow-hidden rounded-xl border-2 border-ink bg-white font-mono text-[11px] leading-6 sm:text-sm">
+                <div class="grid grid-cols-[1fr_auto] gap-4 border-b border-ink/15 px-4 py-3">
+                  <span class="truncate">/code/my-app</span><span class="text-coral-dark">[main]</span>
+                </div>
+                <div class="grid grid-cols-[1fr_auto] gap-4 px-4 py-3">
+                  <span class="truncate">/code/my-app-login</span><span class="text-coral-dark">[feature/login]</span>
+                </div>
+              </div>
+            </article>
+
+            <article class="rounded-2xl border-2 border-ink bg-paper p-5 shadow-block sm:p-7">
+              <div class="mb-6 flex items-start justify-between gap-4">
+                <div>
+                  <span class="font-mono text-xs font-medium uppercase tracking-[0.2em] text-coral">02 / tidy</span>
+                  <h3 class="mt-2 font-display text-3xl text-coral-dark sm:text-4xl">I’m finished.</h3>
+                </div>
+                <span class="grid h-12 w-12 shrink-0 place-items-center rounded-full border-2 border-ink bg-sun">
+                  <svg aria-hidden="true" class="h-6 w-6" viewBox="0 0 24 24" fill="none">
+                    <path d="M5 7h14M9 7V4h6v3m-8 0 1 13h8l1-13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                    <path d="M10 11v5m4-5v5" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+                  </svg>
+                </span>
+              </div>
+
+              <div class="command-card relative overflow-hidden rounded-xl bg-ink p-5">
+                <pre class="overflow-x-auto font-mono text-sm leading-7 text-white sm:text-base"><code id="remove-command"><span class="text-white/45">$</span> git worktree remove \
+  ../my-app-login</code></pre>
+                <button class="mt-5 font-mono text-xs text-white/60 underline decoration-white/30 underline-offset-4 transition-colors hover:text-white focus:outline-none focus:text-white" type="button" data-copy="remove-command">copy</button>
+              </div>
+
+              <p class="mt-5 rounded-xl border-2 border-ink bg-sun p-4 text-base leading-relaxed shadow-block-small sm:text-lg">
+                <strong>Remove the folder when its work is committed.</strong> The branch stays safe in Git; only the extra working folder goes away.
+              </p>
+            </article>
+          </div>
+
+          <div class="mx-auto mt-16 max-w-3xl rotate-[-1deg] rounded-2xl border-2 border-ink bg-white p-6 text-center shadow-block sm:p-8">
+            <p class="font-display text-2xl leading-snug sm:text-4xl">
+              add. work. list. remove.
+              <span class="mt-2 block text-coral">that’s the whole guide.</span>
+            </p>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="bg-ink px-5 py-12 text-white sm:px-8">
+      <div class="mx-auto flex max-w-6xl flex-col items-center justify-between gap-6 text-center sm:flex-row sm:text-left">
+        <div>
+          <p class="font-display text-xl text-sun">git worktree — the simple guide</p>
+          <p class="mt-2 text-sm text-white/55">three commands. two branches. one less headache.</p>
+          <p class="mt-2 text-sm text-white/55">
+            inspired by
+            <a
+              class="underline decoration-coral decoration-2 underline-offset-4 transition-colors hover:text-white focus:outline-none focus:ring-2 focus:ring-sun"
+              href="https://rogerdudler.github.io/git-guide/"
+              target="_blank"
+              rel="noreferrer"
+            >git — the simple guide<span class="sr-only"> (opens in a new tab)</span></a>
+            <span aria-hidden="true"> · </span>prompted by
+            <a
+              class="underline decoration-blue decoration-2 underline-offset-4 transition-colors hover:text-white focus:outline-none focus:ring-2 focus:ring-sun"
+              href="https://prnvbn.dev/"
+              target="_blank"
+              rel="noreferrer"
+            >prnvbn.dev<span class="sr-only"> (opens in a new tab)</span></a>
+            <span class="text-white/[0.08] transition-colors hover:text-white/30" aria-hidden="true"> using Codex</span>
+          </p>
+        </div>
+        <a href="#top" class="inline-flex items-center gap-2 rounded-full border border-white/25 px-5 py-3 font-mono text-xs uppercase tracking-[0.15em] transition-colors hover:bg-white hover:text-ink focus:outline-none focus:ring-2 focus:ring-sun">
+          back to top
+          <span aria-hidden="true">↑</span>
+        </a>
+      </div>
+    </footer>
+
+    <div
+      id="copy-status"
+      class="pointer-events-none fixed bottom-5 left-1/2 z-50 -translate-x-1/2 translate-y-24 rounded-full border-2 border-ink bg-sun px-5 py-3 font-mono text-xs font-medium opacity-0 shadow-block-small transition-all duration-300"
+      role="status"
+      aria-live="polite"
+    >
+      command copied
+    </div>
+
+    <script>
+      const copyStatus = document.querySelector("#copy-status");
+      let statusTimer;
+
+      function cleanCommand(text) {
+        return text.replace(/^\$\s?/gm, "").replace(/\\\n\s*/g, " ").trim();
+      }
+
+      async function copyCommand(button) {
+        const code = document.getElementById(button.dataset.copy);
+        if (!code) return;
+
+        const command = cleanCommand(code.textContent);
+
+        try {
+          await navigator.clipboard.writeText(command);
+        } catch (error) {
+          const helper = document.createElement("textarea");
+          helper.value = command;
+          helper.style.position = "fixed";
+          helper.style.opacity = "0";
+          document.body.appendChild(helper);
+          helper.select();
+          document.execCommand("copy");
+          helper.remove();
+        }
+
+        clearTimeout(statusTimer);
+        copyStatus.classList.remove("translate-y-24", "opacity-0");
+        statusTimer = setTimeout(() => {
+          copyStatus.classList.add("translate-y-24", "opacity-0");
+        }, 1800);
+      }
+
+      document.querySelectorAll("[data-copy]").forEach((button) => {
+        button.addEventListener("click", () => copyCommand(button));
+      });
+    </script>
+  </body>
+</html>

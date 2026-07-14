@@ -1,0 +1,52 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    color-scheme: light;
+  }
+
+  body {
+    text-rendering: optimizeLegibility;
+  }
+}
+
+@layer components {
+  .paper-grid {
+    background-image:
+      linear-gradient(rgba(23, 23, 23, 0.045) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(23, 23, 23, 0.045) 1px, transparent 1px);
+    background-size: 28px 28px;
+  }
+
+  .command-card::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: linear-gradient(110deg, transparent 20%, rgba(255, 255, 255, 0.06), transparent 80%);
+    pointer-events: none;
+  }
+
+  .branch-path {
+    stroke-dasharray: 8 8;
+    animation: march 12s linear infinite;
+  }
+}
+
+@keyframes march {
+  to {
+    stroke-dashoffset: -160;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  .branch-path {
+    animation: none;
+  }
+}
